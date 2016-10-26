@@ -1,1 +1,1 @@
-SELECT DayOfWeek, count(*) AS n FROM ontime WHERE DepDelay>10 AND YearD BETWEEN 2000 AND 2008 GROUP BY DayOfWeek ORDER BY c DESC;
+SELECT DayOfWeek, count(*) AS num_departures FROM ontime WHERE DepDelay>10 AND Year_ BETWEEN 2000 AND 2008 GROUP BY DayOfWeek ORDER BY num_departures DESC;

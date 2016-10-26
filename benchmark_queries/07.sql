@@ -1,1 +1,1 @@
-WITH t AS (SELECt year_,count(*)*1000 AS n1 from ontime WHERE DepDelay>10 GROUP BY YearD), t2 AS (select year_,count(*) AS n2 FROM ontime GROUP BY year_) SELECT t.year_, c1/c2 FROM t JOIN t2 ON (t.year_=t2.year_);
+WITH annual_delays AS (SELECT Year_,count(*) AS num_delays from ontime WHERE DepDelay>10 GROUP BY Year_), annual_flights AS (select Year_,count(*) AS num_flights FROM ontime GROUP BY Year_) SELECT annual_delays.Year_, num_delays/num_flights FROM annual_delays JOIN annual_flights ON (annual_delays.Year_=annual_flights.Year_);

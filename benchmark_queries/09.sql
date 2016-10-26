@@ -1,1 +1,1 @@
-SELECT year_, count(*) as n FROM ontime GROUP BY year_;
+SELECT Year_, count(*) as n FROM ontime GROUP BY Year_;
