@@ -1,10 +1,10 @@
 Q1: The progression of (average) daily traffic volume over the years
 
-SELECT DayOfWeek, count(*) AS num_flight_records FROM ontime WHERE Year_ BETWEEN 2000 AND 2008 GROUP BY DayOfWeek ORDER BY num_flight_records DESC;
+SELECT DayOfWeek AS day_of_week, count(*) AS num_flight_records FROM ontime WHERE Year_ BETWEEN 2000 AND 2008 GROUP BY DayOfWeek ORDER BY num_flight_records DESC;
 
 Q2: Flight departure delays by day of the week
 
-SELECT DayOfWeek, count(*) AS num_departures FROM ontime WHERE DepDelay>10 AND Year_ BETWEEN 2000 AND 2008 GROUP BY DayOfWeek ORDER BY num_departures DESC;
+SELECT DayOfWeek AS day_of_week, count(*) AS num_departures FROM ontime WHERE DepDelay>10 AND Year_ BETWEEN 2000 AND 2008 GROUP BY DayOfWeek ORDER BY num_departures DESC;
 
 Q3: Airports with the most flight departure delays
 
@@ -12,11 +12,11 @@ SELECT Origin, count(*) AS num_departures FROM ontime WHERE DepDelay>10 AND Year
 
 Q4: Flight departure delays in 2007 by carrier
 
-SELECT carrier, count(*) FROM ontime WHERE DepDelay>10 AND Year_=2007 GROUP BY carrier ORDER BY 2 DESC;
+SELECT carrier, count(*) As num_delays FROM ontime WHERE DepDelay>10 AND Year_=2007 GROUP BY carrier ORDER BY 2 DESC;
 
 Q5: Flight delay prevlance in 2007 by carrier (consider performing a floating-point calculation instead of an integer one)
 
-WITH carrier_delays AS (SELECT carrier, count(*) AS num_delays FROM ontime WHERE DepDelay>10 AND Year_=2007 GROUP BY carrier), carrier_flights AS (SELECT carrier, count(*) AS num_flights FROM ontime WHERE Year_=2007 GROUP BY carrier) SELECT carrier_delays.carrier, num_delays, num_flights, num_delays*100/num_flights AS delay_percentage FROM carrier_delays JOIN carrier_flights ON (carrier_delays.Carrier=carrier_delays.Carrier) ORDER BY delay_percentage DESC;
+WITH carrier_delays AS (SELECT carrier, count(*) AS num_delays FROM ontime WHERE DepDelay>10 AND Year_=2007 GROUP BY carrier), carrier_flights AS (SELECT carrier, count(*) AS num_flights FROM ontime WHERE Year_=2007 GROUP BY carrier) SELECT carrier_delays.carrier, num_delays, num_flights, num_delays * 100 / num_flights AS delay_percentage FROM carrier_delays JOIN carrier_flights ON (carrier_delays.Carrier=carrier_flights.Carrier) ORDER BY delay_percentage DESC;
 
 Q6: Flight delay percentage by carrier and year
 
@@ -24,12 +24,12 @@ WITH carrier_delays AS (SELECT carrier, count(*) AS num_delays FROM ontime WHERE
 
 Q7: Flight delay percentage by year
 
-WITH annual_delays AS (SELECT Year_,count(*) AS num_delays from ontime WHERE DepDelay>10 GROUP BY Year_), annual_flights AS (select Year_,count(*) AS num_flights FROM ontime GROUP BY Year_) SELECT annual_delays.Year_, num_delays/num_flights FROM annual_delays JOIN annual_flights ON (annual_delays.Year_=annual_flights.Year_);
+WITH annual_delays AS (SELECT Year_,count(*) AS num_delays FROM ontime WHERE DepDelay>10 GROUP BY Year_), annual_flights AS (select Year_,count(*) AS num_flights FROM ontime GROUP BY Year_) SELECT annual_delays.Year_, num_delays*100/num_flights AS delay_percentage FROM annual_delays JOIN annual_flights ON (annual_delays.Year_=annual_flights.Year_);
 
 Q8: Destinations available from the most cities over the course of several years (you may wish to alter the first and last years in the range)
 
-SELECT DestCityName, COUNT(DISTINCT OriginCityName) FROM ontime WHERE Year_ BETWEEN 2003 and 2007 GROUP BY DestCityName ORDER BY 2 DESC LIMIT 10;
+SELECT DestCityName AS destination, COUNT(DISTINCT OriginCityName) as num_origins_of_flights FROM ontime WHERE Year_ BETWEEN 2003 and 2007 GROUP BY DestCityName ORDER BY 2 DESC LIMIT 10;
 
 Q9: Number of flight records by year
 
-SELECT Year_, count(*) as n FROM ontime GROUP BY Year_;
+SELECT Year_, count(*) as num_flight_records FROM ontime GROUP BY Year_;

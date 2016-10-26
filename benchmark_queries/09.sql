@@ -1,1 +1,1 @@
-SELECT Year_, count(*) as n FROM ontime GROUP BY Year_;
+SELECT Year_, count(*) as num_flight_records FROM ontime GROUP BY Year_;
