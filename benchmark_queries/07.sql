@@ -1,0 +1,1 @@
+WITH t AS (SELECt year_,count(*)*1000 AS n1 from ontime WHERE DepDelay>10 GROUP BY YearD), t2 AS (select year_,count(*) AS n2 FROM ontime GROUP BY year_) SELECT t.year_, c1/c2 FROM t JOIN t2 ON (t.year_=t2.year_);

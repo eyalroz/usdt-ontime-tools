@@ -1,0 +1,1 @@
+SELECT Origin, count(*) AS n FROM ontime WHERE DepDelay>10 AND YearD BETWEEN 2000 AND 2008 GROUP BY Origin ORDER BY c DESC LIMIT 10;
