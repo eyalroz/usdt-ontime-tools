@@ -60,9 +60,9 @@ function usage {
 	AUTHOR="Eyal Rozenberg"
 	CONTACT_EMAIL="E.Rozenberg@cwi.nl"
 	echo "Usage: $0 [OPTIONS]..."
-	echo "Use MonetDB to creates and populate a database of the US Department of Transport's "
-	echo "On-time perfromance data collected by the Beureau of Transport Statistics (and availabe "
-	echo "on their website: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236 )"
+	echo "Create and load up a MonetDB database of the US Department of Transport's On-Time "
+	echo "perfromance data collected by the Beureau of Transport Statistics (and availabe "
+	echo "on their website: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236"
 	echo 
 	echo "Options:"
 	echo "  -r, --recreate           If the benchmark database exists, recreate it, dropping all"
@@ -207,19 +207,19 @@ while [[ $# > 0 ]]; do
 	-a|--append)
 		append_to_db=1
 		;;
-	--first-month)
+	--first-month|--from-month)
 		first_month="$2"
 		shift # past argument
 		;;
-	--last-month)
+	--last-month|--to-month)
 		last_month="$2"
 		shift # past argument
 		;;
-	--first-year)
+	--first-year|--from-year)
 		first_year="$2"
 		shift # past argument
 		;;
-	--last-year)
+	--last-year|--to-year)
 		last_year="$2"
 		shift # past argument
 		;;
@@ -295,7 +295,7 @@ fi
 
 # Check for binaries
 
-for binary in monetdbd monetdb; do
+for binary in mclient monetdbd monetdb; do
 	[[ -n `which $binary` ]] || die "Missing MonetDB binary $binary"
 done
 
