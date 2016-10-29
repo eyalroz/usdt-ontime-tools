@@ -1,0 +1,5 @@
+usdt-ontime-downloads
+usdt-ontime-downloads/*
+*.log
+*.swp
+*.bkp

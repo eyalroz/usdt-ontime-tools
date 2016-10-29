@@ -1,0 +1,11 @@
+destination_city,num_origins_of_flights
+"Atlanta, GA",187
+"Chicago, IL",152
+"Dallas/Fort Worth, TX",146
+"Cincinnati, OH",137
+"Minneapolis, MN",129
+"Houston, TX",126
+"Detroit, MI",116
+"Denver, CO",114
+"Salt Lake City, UT",112
+"New York, NY",106

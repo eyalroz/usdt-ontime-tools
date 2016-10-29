@@ -27,8 +27,8 @@ function usage {
 	echo "                              benchmark queries"
 	echo "  -r, --results-path PATH     Relative or absolute path to the directory into which"
 	echo "                              to write query results files"
-	echo "  -w, --write-results         Write query results to files corresponding to the different 
-	echo                                benchmark queries"
+	echo "  -w, --write-results         Write query results to files corresponding to the different"
+	echo "                              benchmark queries"
 	echo "  -h, --help                  Print usage information"
 	echo "  -v, --verbose               Be verbose about actions taken and current status"
 	echo 
@@ -39,6 +39,13 @@ function usage {
 function die {
 	echo $1 >&2   # error message to stderr 
 	exit ${2:-1}  # default exit code is -1 but you can specify something else
+}
+
+function db_is_up {
+        # This assumes the DB exists
+        local db_name=$1
+        status=$(monetdb -p $port status $db_name 2>/dev/null | tail -1 | sed -r 's/^'$db_name'\s*([^ ]*).*$/\1/;')
+        [[ -n "$status" && $status == "R" ]] && return 0 || return 1
 }
 
 
@@ -114,6 +121,8 @@ for ((i=1;i<=num_queries;i++)); do
 		[[ "$be_verbose" ]] && echo "mclient -lsql -f $format -d $db_name -p $db_port -h $hostname -s \"$query\"  > \"$output_file\""
 		mclient -lsql -f $format -d $db_name -p $db_port -h $hostname -s "$query" > $output_file
 	else
+		if ! db_is_up $db_name; then monetdb -p $db_port stop $db_name > /dev/null ;  fi
+		monetdb -p $db_port start $db_name > /dev/null
 		[[ "$be_verbose" ]] && echo "Query $formatted_query_number: $query" 
 		mclient -lsql -f $format -d $db_name -p $db_port -h $hostname -s "$query" 
 		[[ "$be_verbose" ]] && echo 
