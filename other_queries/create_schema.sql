@@ -6,18 +6,20 @@
 -- for years 1987-2009; when no missing values were found the column was determined to be non-null
 
 CREATE TABLE ontime (
-	Year_                INT           NOT NULL,
+	Year_                SMALLINT      NOT NULL,
 	Quarter              TINYINT       NOT NULL,
 	Month_               TINYINT       NOT NULL,
 	DayofMonth           TINYINT       NOT NULL,
 	DayOfWeek            TINYINT       NOT NULL,
 	FlightDate           DATE          NOT NULL,
 	UniqueCarrier        CHAR(2)       NOT NULL,
-	AirlineID            INT           NOT NULL,
+	AirlineID            INT           NOT NULL,     -- In the data for 2000-2008 this only goes as high
+	                                                 -- as 20500 or so, but let's be a little future-proof
 	Carrier              CHAR(2)       NOT NULL,
 	TailNum              VARCHAR(6)    DEFAULT NULL, -- should be an alphanumeric sequence or "UNKNOW",
 	                                                 -- but in fact we sometimes get some junk, 
-	                                                 -- including non-ASCII
+	                                                 -- including non-ASCII; and there are quite a few
+	                                                 -- values here that are shorter than 6 chars
 	FlightNum            VARCHAR(4)    NOT NULL,
 	OriginAirportID      INT           NOT NULL,
 	OriginAirportSeqID   INT           NOT NULL,
