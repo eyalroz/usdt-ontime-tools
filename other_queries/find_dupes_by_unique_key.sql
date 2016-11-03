@@ -1,6 +1,6 @@
 -- The ontime table _should_ have the following unique key:
 --
---   year_, month_, uniquecarrier, flightnum, dayofmonth, origin
+--   year_, month_, dayofmonth, uniquecarrier, flightnum, origin
 --
 -- (the origin is necessary since the same flight can have several hops and each hop has a record).
 -- Unfortunately, there are some duplicate entries with all fields exactly the same, as well asm
