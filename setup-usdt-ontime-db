@@ -83,10 +83,10 @@ function usage {
 	echo "  -D, --download-dir       Directory into which individual monthly data file will be
         echo "                           downloaded and decompressed before being loaded into the DB
         echo "                           (default: $download_dir)"
-	echo "  --first-year             First year for which to download data"
-	echo "  --first-month            First month in first year for which to download data"
-	echo "  --last-year              Last year for which to download data"
-	echo "  --last-month             Last month in last year for which to download data"
+	echo "  --first-year YEAR        First year for which to download data"
+	echo "  --first-month MONTH      First month in first year for which to download data"
+	echo "  --last-year YEAR         Last year for which to download data"
+	echo "  --last-month MONTH       Last month in last year for which to download data"
 	echo 
 	echo "For questions and details, contact $AUTHOR <$CONTACT_EMAIL> (or just read the source)."
 }
