@@ -48,6 +48,9 @@ function db_is_up {
         [[ -n "$status" && $status == "R" ]] && return 0 || return 1
 }
 
+function is_positive_int {
+    [[ $1 =~ ^[0-9]+$ ]] && [[ ! $1 =~ ^0+$ ]]
+}
 
 while [[ $# > 0 ]]; do
 	option_key="$1"
@@ -113,7 +116,7 @@ done
 mkdir -p "$result_dir"
 query_number_length=${#num_queries}
 for ((i=1;i<=num_queries;i++)); do 
-	formatted_query_number=$(printf "%${query_number_length}d" $i)
+	formatted_query_number=$(printf "%0${query_number_length}d" $i)
 	[[ -r $query_dir/$formatted_query_number.sql ]] || die "Can't read query file $query_dir/$formatted_query_number.sql"
 	query=$(cat $query_dir/$formatted_query_number.sql) 
 	if [[ "$write_results" ]]; then
