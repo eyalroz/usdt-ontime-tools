@@ -19,7 +19,7 @@ for col_and_type in $columns; do
 	col_type=${tokens[1]}
 	if [[ $col_type == "double" || $col_type == "float" || $col_type == "int" || $col_type == "tinyint" || $col_type == "smallint" || $col_type == "huge" ]]; then
 		avg_expr="round(avg($col),4)"
-		stddev_part="round(stddev_pop($col),1) AS standard_deviation, round(stddev_pop($col)/((max($col)-min($col))/2),3) AS relative_standard_deviation"
+		stddev_part="round(stddev_pop($col),1) AS standard_deviation, case max($col)-min($col) WHEN 0 THEN 0 WHEN NULL THEN NULL ELSE round(stddev_pop($col)/((max($col)-min($col))/2.0),3) END AS relative_standard_deviation"
 	else
 		avg_expr="''"
 		stddev_part="'' AS standard_deviation, '' AS relative_standard_deviation"
@@ -29,9 +29,8 @@ for col_and_type in $columns; do
 	else
 		median_expr="median($col)"
 	fi
-	query+="SELECT '${col}', min($col), max($col), $median_expr AS median_value, $avg_expr AS average, $stddev_part FROM $table_name; "
-#	query_result=$(mclient -d "$db_name" -f csv -s "$query")
-#	echo "$col,${query_result:-,,,,,}"
+	query="SELECT '${col}', min($col), max($col), $median_expr AS median_value, $avg_expr AS average, $stddev_part FROM $table_name; "
+	query_result=$(mclient -d "$db_name" -f csv -s "$query")
+	echo "${query_result:-,,,,,,}"
 done
-mclient -d "$db_name" -f csv -s "$query"
 
