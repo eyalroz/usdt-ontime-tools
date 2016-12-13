@@ -10,19 +10,28 @@ function die {
 db_name="${1:-usdt-ontime}"
 table_name="${2:-ontime}"
 
-columns=$(mclient -d "$db_name" -f csv -s "select name from sys.columns where table_id = (select id from sys.tables where name='$table_name');")
+columns=$(mclient -d "$db_name" -f csv -s "select name,type from sys.columns where table_id = (select id from sys.tables where name='$table_name');")
 echo "column_name,min_value,max_value,average_value,standard_deviation,relative_standard_deviation,median_value"
-for col in $columns; do
-query1="SELECT min($col), max($col), round(avg($col),1), round(stddev_pop($col),1) AS standard_deviation, round(stddev_pop($col)/((max($col)-min($col))/2),3) AS relative_standard_deviation FROM $table_name;"
-query2="\
-START TRANSACTION; \
-CREATE TEMPORARY TABLE counts AS SELECT $col AS col, count(*) AS cnt FROM $table_name GROUP BY $col;
-CREATE TEMPORARY TABLE relative_orders AS SELECT t1.col, SUM(t1.cnt * ABS(SIGN(t1.col-t2.col)) * SIGN(SIGN(t1.col - t2.col) + 1) * 1.0) / SUM(t1.cnt) AS normalized_relative_order FROM counts AS t1, counts AS t2 GROUP BY t1.col  ORDER BY normalized_relative_order; \
-SELECT col FROM relative_orders WHERE normalized_relative_order>=0.5 LIMIT 1; \
-ROLLBACK; \
-"
-	query1_result=$(mclient -d "$db_name" -f csv -s "$query1" 2>/dev/null)
-	query2_result=$(mclient -d "$db_name" -f csv -s "$query2" 2>/dev/null)
-	echo "$col,${query1_result:-,,,,},$query2_result"
+num_rows=$(mclient -d "$db_name" -f csv -s "select count(*) from $table_name")
+for col_and_type in $columns; do
+	IFS=',' tokens=( $col_and_type )
+	col=${tokens[0]}
+	col_type=${tokens[1]}
+	if [[ $col_type == "double" || $col_type == "float" || $col_type == "int" || $col_type == "tinyint" || $col_type == "smallint" || $col_type == "huge" ]]; then
+		avg_expr="round(avg($col),4)"
+		stddev_part="round(stddev_pop($col),1) AS standard_deviation, round(stddev_pop($col)/((max($col)-min($col))/2),3) AS relative_standard_deviation"
+	else
+		avg_expr="''"
+		stddev_part="'' AS standard_deviation, '' AS relative_standard_deviation"
+	fi
+	if [[ $col_type == "char" || $col_type == "varchar" ]]; then
+		median_expr="''"
+	else
+		median_expr="median($col)"
+	fi
+	query+="SELECT '${col}', min($col), max($col), $median_expr AS median_value, $avg_expr AS average, $stddev_part FROM $table_name; "
+#	query_result=$(mclient -d "$db_name" -f csv -s "$query")
+#	echo "$col,${query_result:-,,,,,}"
 done
+mclient -d "$db_name" -f csv -s "$query"
 
