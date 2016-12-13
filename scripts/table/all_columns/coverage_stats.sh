@@ -35,11 +35,13 @@ if [[ $(get_db_property $db_name "embedr") != "yes" ]]; then
 fi
 
 columns=$(mclient -d "$db_name" -f csv -s "select name from sys.columns where table_id = (select id from sys.tables where name='$table_name');")
-echo "column_name,support_size,fraction_to_cover,num_elements_necessary,fraction_covered"
+echo "column_name,support_size,fraction_to_cover,num_values_necessary,fraction_of_values_necessary,num_covered,fraction_covered"
 num_rows=$(mclient -d "$db_name" -f csv -s "select count(*) from $table_name")
 for col in $columns; do
 	fraction_to_cover=$(echo "scale = 15; 1 - 1 / $inverse_frequency" | bc | sed -r 's/^\./0./; s/([1-9.])0+$/\1/;' )
-	support_size_query="select count(distinct $col) from $table_name;"
+	# this would be without nulls:
+	# support_size_query="select count(distinct $col) from $table_name;"
+	support_size_query="SELECT count(*) FROM (SELECT 0 from $table_name group by $col) AS t;"
 	support_size=$(mclient -d "$db_name" -f csv -s "$support_size_query")
 	query="START TRANSACTION; "
 	# Histogram of number of elements by multiplicity in column $col
@@ -48,9 +50,9 @@ for col in $columns; do
 	query+="CREATE TEMPORARY TABLE rn_counts AS SELECT row_number() OVER () AS rn, cnt, times FROM counts; "
 	# The hard part
 	query+="CREATE TEMPORARY TABLE sufficing_count AS SELECT min(rn) AS rn, min(covered) AS covered, min(used) AS used FROM (SELECT min(t1.rn) AS rn, sum(t2.cnt * t2.times) AS covered, sum(t2.times) AS used from rn_counts AS t1, rn_counts AS t2 where t1.rn >= t2.rn group by t1.rn) AS t3 WHERE covered > $fraction_to_cover * $num_rows; \
-SELECT used - (covered - cast($fraction_to_cover * $num_rows AS int)) / cnt AS final_used, covered - ((covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) * cnt AS final_covered  FROM sufficing_count, rn_counts WHERE rn_counts.rn = sufficing_count.rn; \
+SELECT used - (covered - cast($fraction_to_cover * $num_rows AS int)) / cnt AS final_used, (used - (covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) / cast($support_size AS double) AS fraction_used, covered - ((covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) * cnt AS final_covered, (covered - ((covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) * cnt ) / cast($num_rows AS double) AS fraction_covered FROM sufficing_count, rn_counts WHERE rn_counts.rn = sufficing_count.rn; \
 ROLLBACK;"
 	cover_result=$(mclient -d "$db_name" -f csv -s "$query")
-	echo "$col,$support_size,$fraction_to_cover,${cover_result:-,}"
+	echo "$col,$support_size,$fraction_to_cover,${cover_result:-,,}"
 done
 
