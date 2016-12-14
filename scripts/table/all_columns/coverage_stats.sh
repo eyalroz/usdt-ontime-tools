@@ -35,7 +35,7 @@ if [[ $(get_db_property $db_name "embedr") != "yes" ]]; then
 fi
 
 columns=$(mclient -d "$db_name" -f csv -s "select name from sys.columns where table_id = (select id from sys.tables where name='$table_name');")
-echo "column_name,support_size,fraction_to_cover,num_values_necessary,fraction_of_values_necessary,num_covered,fraction_covered"
+echo "column_name,support_size,fraction_to_cover,num_values_necessary,fraction_of_values_necessary,num_covered,fraction_covered,num_covered_by_1_byte,fraction_covered_by_1_byte,num_covered_by_2_bytes,fraction_covered_by_2_bytes"
 num_rows=$(mclient -d "$db_name" -f csv -s "select count(*) from $table_name")
 for col in $columns; do
 	fraction_to_cover=$(echo "scale = 15; 1 - 1 / $inverse_frequency" | bc | sed -r 's/^\./0./; s/([1-9.])0+$/\1/;' )
@@ -53,6 +53,13 @@ for col in $columns; do
 SELECT used - (covered - cast($fraction_to_cover * $num_rows AS int)) / cnt AS final_used, (used - (covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) / cast($support_size AS double) AS fraction_used, covered - ((covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) * cnt AS final_covered, (covered - ((covered - cast($fraction_to_cover * $num_rows AS int)) / cnt) * cnt ) / cast($num_rows AS double) AS fraction_covered FROM sufficing_count, rn_counts WHERE rn_counts.rn = sufficing_count.rn; \
 ROLLBACK;"
 	cover_result=$(mclient -d "$db_name" -f csv -s "$query")
-	echo "$col,$support_size,$fraction_to_cover,${cover_result:-,,}"
+	query=" START TRANSACTION; "
+	query+="CREATE TEMPORARY TABLE counts AS select $col as v, count($col) as cnt from $table_name where $col is not null group by v order by cnt desc limit 255; "
+	query+="CREATE TEMPORARY TABLE rn_counts AS select row_number() OVER () AS rn, v, cnt FROM counts LIMIT 32767;"
+#	query+="CREATE TEMPORARY TABLE two_byte_counts AS select row_number() OVER () AS rn, v, cnt FROM counts LIMIT 32767;"
+	num_nulls=$(mclient -d "$db_name" -f csv -s "select count(*) from $table_name where $col is null;")
+	query+="SELECT (select sum(cnt) from rn_counts where rn <= 255), (select (sum(cnt)+$num_nulls)/cast($num_rows AS double) from rn_counts where rn <= 255), (select sum(cnt) from rn_counts where rn <= 32767), (select (sum(cnt)+$num_nulls)/cast($num_rows AS double) from rn_counts where rn <= 32767); "
+	byte_cover_result=$(mclient -d "$db_name" -f csv -s "$query")
+	echo "$col,$support_size,$fraction_to_cover,${cover_result:-,,},${byte_cover_result:-,}"
 done
 
