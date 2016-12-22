@@ -76,13 +76,18 @@ function usage {
 	echo "  -p, --port NUMBER        IP port on which to connect to the database"
 	echo "  -k, --keep-downloads     Keep the zipped CSV files downloaded from the US department"
 	echo "                           of transport's website after loading them into the DB"
-	echo "  -h, --help               Print usage information"
+	echo "  -s, --fix-sort-order    The order of appearance of records in the CSV files is not-uniform;"
+	echo "                           With this option (on by default) the CSVs will be resorted,"
+	echo "                           all by the same fixed order."
+	echo "  -i, --ignore-sort-order  The order of appearance of records in the CSV files is not-uniform;"
+	echo "                           With this option, ) the CSVs will be loaded as-is"
 	echo "  -v, --verbose            Be verbose about actions taken and current status"
+	echo "  -h, --help               Print usage information"
 #	echo "  -n, --empty-as-null      Interpret empty fields as having a null value (rather than"
 #	echo "                           an empty string or a 0 integer value)"
-	echo "  -D, --download-dir       Directory into which individual monthly data file will be
-        echo "                           downloaded and decompressed before being loaded into the DB
-        echo "                           (default: $download_dir)"
+	echo "  -D, --download-dir       Directory into which individual monthly data file will be"
+	echo "                           downloaded and decompressed before being loaded into the DB"
+	echo "                           (default: $download_dir)"
 	echo "  --first-year YEAR        First year for which to download data"
 	echo "  --first-month MONTH      First month in first year for which to download data"
 	echo "  --last-year YEAR         Last year for which to download data"
@@ -161,20 +166,30 @@ function get_and_load_month_data {
 	local csv_file="${zip_file/zip/csv}"
 	local quiet_switch=
 	local char_masking_sed_command
-	[[ "$mask_unexpected_chars" ]] && char_masking_sed_command='s/,[^,]*[\xE0-\xEF][^,]*,/,,/;'
+	local remove_flightnum_quotes_sed_command
+	local sort_command
+	[[ "$mask_unexpected_chars" ]] && char_masking_sed_command='s/,[^,]*[\xE0-\xEF][^,]*,/,,/; '
+	# Sorting by fields 4, 7, 11, 12, 21 - DayOfMonth, UniqueCarrier, FlightNum, OriginAirportID, DestAirportID
+	# Actually, many/most files are sorted differently - and perhaps choosing airports before carriers and flight numbers makes
+	# some sense - but this seems to maintain elements of the order in different files 
+	[[ "$fix_csv_sort_order" ]] && sort_pipe_element="sort -t, -k4,4n -k7,7 -k11,11n -k12,12n -k21,21n -" || sort_pipe_element="cat"
+	# The flight number field is usually/always within quotes. We could skip the first quote, but then - if someday the line numbers
+	# stop having quotes we'll be in a bind
+	[[ "$fix_csv_sort_order" ]] && remove_flightnum_quotes_sed_command='s/^(([^,]*,){10})"([0-9]+)"/\1\3/; '
 	[[ "$be_verbose" ]] || quiet_switch="-q"
 	pushd $download_dir > /dev/null
 	[[ "$be_verbose" ]] && echo "wget -c \"${url_prefix}${zip_file}\""
 	wget -c $quiet_switch "${url_prefix}${zip_file}"
-	[[ "$be_verbose" ]] && echo "unzip -p -o \"$zip_file\" \"$csv_file\" | LC_ALL=C sed 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'${char_masking_sed_command} > \"$csv_file\""
-	unzip -p $quiet_switch -o "$zip_file" "$csv_file" | LC_ALL=C sed -r 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'"${char_masking_sed_command}" > "$csv_file"
+	[[ "$be_verbose" ]] && echo "unzip -p -o \"$zip_file\" \"$csv_file\" | LC_ALL=C sed 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'${char_masking_sed_command}$remove_flightnum_quotes_sed_command}' | $sort_pipe_element > \"$csv_file\""
+	# The \x stuff is to clean character ertries involving invalid octets for UTF-8. The sort command is due to the fact that not all CSV files follow the smae sort key
+	unzip -p $quiet_switch -o "$zip_file" "$csv_file" | LC_ALL=C sed -r 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/; '"${char_masking_sed_command}${remove_flightnum_quotes_sed_command}" | $sort_pipe_element  > "$csv_file"
 
 	[[ "$empty_as_null" ]] && null_as_clause=" NULL AS ''"
 	# Note: For MonetDB, the OFFSET value in COPY INTO statements 
 	# really means "start with the record whose 1-based index is, 
 	# i.e. OFFSET 2 means skip the first record
 	run_mclient "COPY OFFSET 2 INTO $table_name FROM '$download_dir/$csv_file' USING DELIMITERS ',','\n','\"' ${null_as_clause};"
-	rm "$csv_file" 2>&1
+#	rm "$csv_file" 2>&1
 	[[ $keep_downloads ]] || rm "$zip_file"
 	popd > /dev/null
 }
@@ -240,6 +255,12 @@ while [[ $# > 0 ]]; do
 		;;
 	-k|--keep-downloaded|--keep|--keep-downloads)
 		keep_downloads=1
+		;;
+	-s|--fix-sort-order|--fix-csv-sort-order)
+		fix_csv_sort_order=1
+		;;
+	-i|--ignore-sort-order|--ignore-csv-sort-order)
+		unset fix_csv_sort_order
 		;;
 	*) # unknown option
 		die "Uknown command line option $option_key"
