@@ -10,27 +10,8 @@
 #
 # Must be run after MonetDB itself has been properly installed
 # 
-#################################################################################
 # By Eyal Rozenberg <E.Rozenberg@cwi.nl>
-# version: 2016-10-26
-# If you want to talk copyrights and stuff, write me
-##################################################################################
 #
-# BUGS: Not noticing DB farm is up, trying to start another monetdbd
-#
-# TODO: 
-# - Support loading into a DB on a remote host (in which case we would not check
-#   for the existence of a DB farm)
-# - Support the option to create all columns non-null  (need to handle missing
-#   integer fields)
-# - Issue: What about authentication? Currently assuming user takes care of that
-#   or has an appropriate .monetdb file
-# - Feature: Differential operation after a setup process has been interrupted,
-#   removing all records for the "partial" month and reloading all of them from
-#   that month's files
-# - Relax free space constraints somewhat, based on a more accurate estimate
-#   of how much space will actually be taken up by the data
-# - Log to a file in addition to stdout?
 
 
 #---------------------------------------
@@ -189,7 +170,7 @@ function get_and_load_month_data {
 	# really means "start with the record whose 1-based index is, 
 	# i.e. OFFSET 2 means skip the first record
 	run_mclient "COPY OFFSET 2 INTO $table_name FROM '$download_dir/$csv_file' USING DELIMITERS ',','\n','\"' ${null_as_clause};"
-#	rm "$csv_file" 2>&1
+	rm "$csv_file" 2>&1
 	[[ $keep_downloads ]] || rm "$zip_file"
 	popd > /dev/null
 }
