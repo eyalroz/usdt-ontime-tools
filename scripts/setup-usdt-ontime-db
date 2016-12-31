@@ -146,14 +146,17 @@ function get_and_load_month_data {
 	local zip_file="${filename_prefix}_${year}_${month}.zip"
 	local csv_file="${zip_file/zip/csv}"
 	local quiet_switch=
+	local nproc_result=$(nproc)
+	local num_processors=${nproc_result:-1}
 	local char_masking_sed_command
 	local remove_flightnum_quotes_sed_command
 	local sort_command
 	[[ "$mask_unexpected_chars" ]] && char_masking_sed_command='s/,[^,]*[\xE0-\xEF][^,]*,/,,/; '
 	# Sorting by fields 4, 7, 11, 12, 21 - DayOfMonth, UniqueCarrier, FlightNum, OriginAirportID, DestAirportID
-	# Actually, many/most files are sorted differently - and perhaps choosing airports before carriers and flight numbers makes
-	# some sense - but this seems to maintain elements of the order in different files 
-	[[ "$fix_csv_sort_order" ]] && sort_pipe_element="sort -t, -k4,4n -k7,7 -k11,11n -k12,12n -k21,21n -" || sort_pipe_element="cat"
+	# Actually, the files themselves are typically not in this keying order (e.g. carrier before dayofmonth) - but
+	# they are not in a uniform consistent order, not even within individual files; so I'm keying essentially
+	# by the fields in order (ignoring derivable fields such as FlightDate and DayOfWeek)
+	[[ "$fix_csv_sort_order" ]] && sort_pipe_element="sort --parallel=$num_processors -t, -k4,4n -k7,7 -k11,11n -k12,12n -k21,21n -" || sort_pipe_element="cat"
 	# The flight number field is usually/always within quotes. We could skip the first quote, but then - if someday the line numbers
 	# stop having quotes we'll be in a bind
 	[[ "$fix_csv_sort_order" ]] && remove_flightnum_quotes_sed_command='s/^(([^,]*,){10})"([0-9]+)"/\1\3/; '
@@ -161,15 +164,13 @@ function get_and_load_month_data {
 	pushd $download_dir > /dev/null
 	[[ "$be_verbose" ]] && echo "wget -c \"${url_prefix}${zip_file}\""
 	wget -c $quiet_switch "${url_prefix}${zip_file}"
-	[[ "$be_verbose" ]] && echo "unzip -p -o \"$zip_file\" \"$csv_file\" | LC_ALL=C sed 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'${char_masking_sed_command}$remove_flightnum_quotes_sed_command}' | $sort_pipe_element > \"$csv_file\""
+	[[ "$be_verbose" ]] && echo "unzip -p -o \"$zip_file\" \"$csv_file\" | tail -n +2 | LC_ALL=C sed 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'${char_masking_sed_command}$remove_flightnum_quotes_sed_command}' | $sort_pipe_element > \"$csv_file\""
 	# The \x stuff is to clean character ertries involving invalid octets for UTF-8. The sort command is due to the fact that not all CSV files follow the smae sort key
-	unzip -p $quiet_switch -o "$zip_file" "$csv_file" | LC_ALL=C sed -r 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/; '"${char_masking_sed_command}${remove_flightnum_quotes_sed_command}" | $sort_pipe_element  > "$csv_file"
+	# The tail command is used to drop the header line
+	unzip -p $quiet_switch -o "$zip_file" "$csv_file" | tail -n +2 | LC_ALL=C sed -r 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/; '"${char_masking_sed_command}${remove_flightnum_quotes_sed_command}" | $sort_pipe_element  > "$csv_file"
 
 	[[ "$empty_as_null" ]] && null_as_clause=" NULL AS ''"
-	# Note: For MonetDB, the OFFSET value in COPY INTO statements 
-	# really means "start with the record whose 1-based index is, 
-	# i.e. OFFSET 2 means skip the first record
-	run_mclient "COPY OFFSET 2 INTO $table_name FROM '$download_dir/$csv_file' USING DELIMITERS ',','\n','\"' ${null_as_clause};"
+	run_mclient "COPY INTO $table_name FROM '$download_dir/$csv_file' USING DELIMITERS ',','\n','\"' ${null_as_clause};"
 	rm "$csv_file" 2>&1
 	[[ $keep_downloads ]] || rm "$zip_file"
 	popd > /dev/null
