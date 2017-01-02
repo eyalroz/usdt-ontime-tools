@@ -52,8 +52,6 @@ Options:
   --first-month MONTH      First month in first year for which to download data
   --last-year YEAR         Last year for which to download data
   --last-month MONTH       Last month in last year for which to download data
-
-For questions and details, contact Eyal Rozenberg <E.Rozenberg@cwi.nl> (or just read the source).
    ```
 3. Execute `scripts/run_benchmark_queries.sh -v` as a sanity check, to make sure you get results that look like the expected answer (you can also diff-compare the results you get with  `scripts/run_benchmark_queries.sh -w` to the reference results in `expected_results/`).
 
