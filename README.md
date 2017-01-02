@@ -38,15 +38,20 @@ Options:
   -p, --port NUMBER        IP port on which to connect to the database
   -k, --keep-downloads     Keep the zipped CSV files downloaded from the US department
                            of transport's website after loading them into the DB
-  -h, --help               Print usage information
+  -s, --fix-sort-order    The order of appearance of records in the CSV files is not-uniform;
+                           With this option (on by default) the CSVs will be resorted,
+                           all by the same fixed order.
+  -i, --ignore-sort-order  The order of appearance of records in the CSV files is not-uniform;
+                           With this option, ) the CSVs will be loaded as-is
   -v, --verbose            Be verbose about actions taken and current status
+  -h, --help               Print usage information
   -D, --download-dir       Directory into which individual monthly data file will be
-        echo  downloaded and decompressed before being loaded into the DB
-                           (default: /ufs/eyalroz/src/usdt-ontime-tools/usdt-ontime-downloads)
-  --first-year             First year for which to download data
-  --first-month            First month in first year for which to download data
-  --last-year              Last year for which to download data
-  --last-month             Last month in last year for which to download data
+                           downloaded and decompressed before being loaded into the DB
+                           (default: /export/scratch1/home/eyalroz/src/usdt-ontime-tools/usdt-ontime-downloads)
+  --first-year YEAR        First year for which to download data
+  --first-month MONTH      First month in first year for which to download data
+  --last-year YEAR         Last year for which to download data
+  --last-month MONTH       Last month in last year for which to download data
 
 For questions and details, contact Eyal Rozenberg <E.Rozenberg@cwi.nl> (or just read the source).
    ```
