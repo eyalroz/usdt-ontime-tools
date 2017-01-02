@@ -53,6 +53,7 @@ Options:
   --last-year YEAR         Last year for which to download data
   --last-month MONTH       Last month in last year for which to download data
    ```
+
 3. Execute `scripts/run_benchmark_queries.sh -v` as a sanity check, to make sure you get results that look like the expected answer (you can also diff-compare the results you get with  `scripts/run_benchmark_queries.sh -w` to the reference results in `expected_results/`).
 
 ### Questions? Requests? Feedback? Bugs?
