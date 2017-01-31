@@ -118,7 +118,7 @@ CREATE TABLE ontime (
 	Div4WheelsOn         CHAR(4)       DEFAULT NULL,
 	Div4TotalGTime       SMALLINT      DEFAULT NULL,
 	Div4LongestGTime     SMALLINT      DEFAULT NULL,
-	Div4WheelsOff        CHAR(10)      DEFAULT NULL,
+	Div4WheelsOff        CHAR(4)       DEFAULT NULL,
 	Div4TailNum          VARCHAR(6)    DEFAULT NULL,
 	Div5Airport          CHAR(3)       DEFAULT NULL,
 	Div5AirportID        INT           DEFAULT NULL,
