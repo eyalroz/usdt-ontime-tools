@@ -43,28 +43,29 @@ CREATE TABLE ontime (
 	DepTime              INT           DEFAULT NULL,
 	DepDelay             INT           DEFAULT NULL,
 	DepDelayMinutes      INT           DEFAULT NULL,
-	DepDel15             INT           DEFAULT NULL,
+	DepDel15             BOOLEAN       DEFAULT NULL, -- 0, 1 or null
 	DepartureDelayGroups TINYINT       DEFAULT NULL, -- Should have values from -1 to 12, but we also have
-                                                         -- records with -2 for some reason
+                                                     -- records with -2 for some reason, and nulls
 	DepTimeBlk           CHAR(9)       NOT NULL,     -- the round-hour time block for departure; these all have
-                                                         -- the format "HHMM-HHMM", although in fact these are mostly
-                                                         -- round-hour intervals (e.g. 1600-1659) and a single large
-                                                         -- block at night, 0000-0559. There are thus effectively
-                                                         -- exactly 19 values unless the block scheme is changed
-	TaxiOut              INT           DEFAULT NULL,
+                                                     -- the format "HHMM-HHMM", although in fact these are mostly
+                                                     -- round-hour intervals (e.g. 1600-1659) and a single large
+                                                     -- block at night, 0000-0559. There are thus effectively
+                                                     -- exactly 19 values unless the block scheme is changed
+	TaxiOut              SMALLINT      DEFAULT NULL,
 	WheelsOff            CHAR(4)       DEFAULT NULL, -- typically time in "hhmm" format, but we do see 
 	                                                 -- some junk such as 0-90 
 	WheelsOn             CHAR(4)       DEFAULT NULL, -- typically time in "hhmm" format, but we do see 
 	                                                 -- some junk such as 0-90 
-	TaxiIn               INT           DEFAULT NULL,
-	CRSArrTime           CHAR(4)       DEFAULT NULL, -- typically time in "hhmm" format; not known yet to have junk
-	ArrTime              CHAR(4)       DEFAULT NULL, -- typically time in "hhmm" format; not known yet to have junk
-	ArrDelay             INT           DEFAULT NULL,
-	ArrDelayMinutes      INT           DEFAULT NULL,
-	ArrDel15             INT           DEFAULT NULL,
-	ArrivalDelayGroups   INT           DEFAULT NULL,
+	TaxiIn               SMALLINT      DEFAULT NULL,
+	CRSArrTime           SMALLINT      DEFAULT NULL, -- typically time in "hhmm" format; not known yet to have junk
+	ArrTime              SMALLINT      DEFAULT NULL, -- typically time in "hhmm" format; not known yet to have junk
+	ArrDelay             SMALLINT      DEFAULT NULL,
+	ArrDelayMinutes      SMALLINT      DEFAULT NULL,
+	ArrDel15             BOOLEAN       DEFAULT NULL, -- 0, 1 or null
+	ArrivalDelayGroups   TINYINT       DEFAULT NULL, -- Should have values from -1 to 12, but we also have
+                                                     -- records with -2 for some reason, and nulls
 	ArrTimeBlk           CHAR(9)       NOT NULL,     -- see comment for DepTimeBlk - full-hour intervals
-	Cancelled            BOOLEAN       NOT NULL,     -- Binary: 0 or 1
+	Cancelled            BOOLEAN       NOT NULL,     -- 0 or 1 or null
 	CancellationCode     CHAR(1)       DEFAULT NULL, -- 'A','B','C' or 'D'
 	Diverted             BOOLEAN       NOT NULL,
 	CRSElapsedTime       INT           DEFAULT NULL,
@@ -84,7 +85,7 @@ CREATE TABLE ontime (
 	DivAirportLandings   CHAR(1)       DEFAULT NULL,
 	DivReachedDest       CHAR(4)       DEFAULT NULL,
 	DivActualElapsedTime SMALLINT      DEFAULT NULL, -- unfortunately, this is specified with fixed precision, despite
-                                                         -- being integral just like the non-diverted ActualElapsedTime
+                                                     -- being integral just like the non-diverted ActualElapsedTime
 	DivArrDelay          SMALLINT      DEFAULT NULL,
 	DivDistance          SMALLINT      DEFAULT NULL,
 	Div1Airport          CHAR(3)       DEFAULT NULL,
