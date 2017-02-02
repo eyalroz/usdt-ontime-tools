@@ -29,7 +29,7 @@ CREATE TABLE ontime (
 	OriginState          CHAR(2)       DEFAULT NULL,
 	OriginStateFips      CHAR(2)       DEFAULT NULL,
 	OriginStateName      VARCHAR(48)   DEFAULT NULL,
-	OriginWac            INT           NOT NULL,
+	OriginWac            TINYINT       NOT NULL,
 	DestAirportID        INT           NOT NULL,
 	DestAirportSeqID     INT           NOT NULL,
 	DestCityMarketID     INT           NOT NULL,
@@ -38,11 +38,11 @@ CREATE TABLE ontime (
 	DestState            CHAR(2)       DEFAULT NULL,
 	DestStateFips        CHAR(2)       DEFAULT NULL,
 	DestStateName        VARCHAR(48)   DEFAULT NULL,
-	DestWac              INT           NOT NULL,
+	DestWac              TINYINT       NOT NULL,
 	CRSDepTime           INT           NOT NULL,
 	DepTime              INT           DEFAULT NULL,
-	DepDelay             INT           DEFAULT NULL,
-	DepDelayMinutes      INT           DEFAULT NULL,
+	DepDelay             SMALLINT      DEFAULT NULL,
+	DepDelayMinutes      SMALLINT      DEFAULT NULL,
 	DepDel15             BOOLEAN       DEFAULT NULL, -- 0, 1 or null
 	DepartureDelayGroups TINYINT       DEFAULT NULL, -- Should have values from -1 to 12, but we also have
                                                      -- records with -2 for some reason, and nulls
