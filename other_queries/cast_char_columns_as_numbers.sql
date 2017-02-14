@@ -10,7 +10,7 @@
 -- Note: The second query is very heavy on MonetDB and may well
 -- a long time.
 
-CREATE TABLE ontime_casts (
+CREATE TABLE ontimecasts (
 
 CancellationCode     TINYINT   DEFAULT NULL, 
 DivAirportLandings   TINYINT   DEFAULT NULL,
@@ -46,7 +46,7 @@ Div5WheelsOn         INT       DEFAULT NULL,
 Div5WheelsOff        INT       DEFAULT NULL
 );
 
-INSERT INTO ontime_casts SELECT
+INSERT INTO ontimecasts SELECT
 
 ascii(substr(CancellationCode,   1,1)) AS CancellationCode,
 ascii(substr(DivAirportLandings, 1,1)) AS DivAirportLandings,
