@@ -6,32 +6,26 @@ Month	Month
 DayofMonth	Day of Month
 DayOfWeek	Day of Week
 FlightDate	Flight Date (yyyymmdd)
-UniqueCarrier	Unique Carrier Code. When the same code has been used by multiple carriers, a numeric suffix is used for earlier users, for example, PA, PA(1),
-PA(2).	Use this field for analysis across a range of years.
+UniqueCarrier	Unique Carrier Code. When the same code has been used by multiple carriers, a numeric suffix is used for earlier users, for example, PA, PA(1), PA(2). Use this field for analysis across a range of years.
 AirlineID	An identification number assigned by US DOT to identify a unique airline (carrier). A unique airline (carrier) is defined as one holding and
 reporting	under the same DOT certificate regardless of its Code, Name, or holding company/corporation.
-Carrier	Code assigned by IATA and commonly used to identify a carrier. As the same code may have been assigned to different carriers over time, the code is
-not	always unique. For analysis, use the Unique Carrier Code.
+Carrier	Code assigned by IATA and commonly used to identify a carrier. As the same code may have been assigned to different carriers over time, the code is not always unique. For analysis, use the Unique Carrier Code.
 TailNum	Tail Number
 FlightNum	Flight Number
-OriginAirportID	Origin Airport, Airport ID. An identification number assigned by US DOT to identify a unique airport. Use this field for airport analysis
-across	a range of years because an airport can change its airport code and airport codes can be reused.
+OriginAirportID	Origin Airport, Airport ID. An identification number assigned by US DOT to identify a unique airport. Use this field for airport analysis across a range of years because an airport can change its airport code and airport codes can be reused.
 OriginAirportSeqID	Origin Airport, Airport Sequence ID. An identification number assigned by US DOT to identify a unique airport at a given point of time.
 Airport	attributes, such as airport name or coordinates, may change over time.
-OriginCityMarketID	Origin Airport, City Market ID. City Market ID is an identification number assigned by US DOT to identify a city market. Use this field to
-consolidate	airports serving the same city market.
+OriginCityMarketID	Origin Airport, City Market ID. City Market ID is an identification number assigned by US DOT to identify a city market. Use this field to consolidate	airports serving the same city market.
 Origin	Origin Airport
 OriginCityName	Origin Airport, City Name
 OriginState	Origin Airport, State Code
 OriginStateFips	Origin Airport, State Fips
 OriginStateName	Origin Airport, State Name
 OriginWac	Origin Airport, World Area Code
-DestAirportID	Destination Airport, Airport ID. An identification number assigned by US DOT to identify a unique airport. Use this field for airport analysis
-across	a range of years because an airport can change its airport code and airport codes can be reused.
+DestAirportID	Destination Airport, Airport ID. An identification number assigned by US DOT to identify a unique airport. Use this field for airport analysis across a range of years because an airport can change its airport code and airport codes can be reused.
 DestAirportSeqID	Destination Airport, Airport Sequence ID. An identification number assigned by US DOT to identify a unique airport at a given point of time.
 Airport	attributes, such as airport name or coordinates, may change over time.
-DestCityMarketID	Destination Airport, City Market ID. City Market ID is an identification number assigned by US DOT to identify a city market. Use this field
-to	consolidate airports serving the same city market.
+DestCityMarketID	Destination Airport, City Market ID. City Market ID is an identification number assigned by US DOT to identify a city market. Use this field to consolidate airports serving the same city market.
 Dest	Destination Airport
 DestCityName	Destination Airport, City Name
 DestState	Destination Airport, State Code
@@ -75,10 +69,8 @@ TotalAddGTime	Total Ground Time Away from Gate for Gate Return or Cancelled Flig
 LongestAddGTime	Longest Time Away from Gate for Gate Return or Cancelled Flight
 DivAirportLandings	Number of Diverted Airport Landings
 DivReachedDest	Diverted Flight Reaching Scheduled Destination Indicator (1=Yes)
-DivActualElapsedTime	Elapsed Time of Diverted Flight Reaching Scheduled Destination, in Minutes. The ActualElapsedTime column remains NULL for all diverted
-flights.
-DivArrDelay	Difference in minutes between scheduled and actual arrival time for a diverted flight reaching scheduled destination. The ArrDelay column remains
-NULL	for all diverted flights.
+DivActualElapsedTime	Elapsed Time of Diverted Flight Reaching Scheduled Destination, in Minutes. The ActualElapsedTime column remains NULL for all diverted flights.
+DivArrDelay	Difference in minutes between scheduled and actual arrival time for a diverted flight reaching scheduled destination. The ArrDelay column remains NULL for all diverted flights.
 DivDistance	Distance between scheduled destination and final diverted airport (miles). Value will be 0 for diverted flight reaching scheduled destination.
 Div1Airport	Diverted Airport Code1
 Div1AirportID	Airport ID of Diverted Airport 1. Airport ID is a Unique Key for an Airport

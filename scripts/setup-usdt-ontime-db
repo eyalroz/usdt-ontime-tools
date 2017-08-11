@@ -141,7 +141,7 @@ function is_number {
 function get_and_load_month_data {
 	local year=$1
 	local month=$2
-	local url_prefix="http://tsdata.bts.gov/PREZIP/"
+	local url_prefix="https://transtats.bts.gov/PREZIP/"
 	local filename_prefix="On_Time_On_Time_Performance"
 	local zip_file="${filename_prefix}_${year}_${month}.zip"
 	local csv_file="${zip_file/zip/csv}"

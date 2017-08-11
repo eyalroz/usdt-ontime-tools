@@ -3,7 +3,7 @@
 # Note: This is _not_ the proper way to perform the benchmark - some queries will be run with cold data, some with hot data,
 # there are no repetitions etc. Use it to check you're getting sane results for all of the queries
 
-query_dir="benchmark_queries"
+query_dir="benchmark_queries/percona"
 result_dir="expected_results"
 db_name="usdt-ontime"
 table_name="ontime"
@@ -118,7 +118,10 @@ query_number_length=${#num_queries}
 for ((i=1;i<=num_queries;i++)); do 
 	formatted_query_number=$(printf "%0${query_number_length}d" $i)
 	[[ -r $query_dir/$formatted_query_number.sql ]] || die "Can't read query file $query_dir/$formatted_query_number.sql"
-	query=$(cat $query_dir/$formatted_query_number.sql) 
+	query_file="$query_dir/$formatted_query_number.sql"
+	[[ "$be_verbose" ]] && echo "Reading query $i from ${query_file}"
+	query=$(sed -r 's/--.*$//;' "$query_file" | paste -s --delimiters=\  | sed -r 's/\s+/ /g; s/^\s//;')
+	# TODO: In verbose mode, print out some initial fragment of the query here
 	if [[ "$write_results" ]]; then
 		output_file="$result_dir/$formatted_query_number.ans"
 		[[ "$be_verbose" ]] && echo "mclient -lsql -f $format -d $db_name -p $db_port -h $hostname -s \"$query\"  > \"$output_file\""
