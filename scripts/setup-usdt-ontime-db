@@ -9,7 +9,7 @@
 # https://www.percona.com/blog/2009/10/02/analyzing-air-traffic-performance-with-infobright-and-monetdb/
 #
 # Must be run after MonetDB itself has been properly installed
-# 
+#
 # By Eyal Rozenberg <E.Rozenberg@cwi.nl>
 #
 
@@ -42,8 +42,8 @@ function usage {
 	echo "Usage: $0 [OPTIONS]..."
 	echo "Create and load up a MonetDB database of the US Department of Transport's On-Time "
 	echo "perfromance data collected by the Beureau of Transport Statistics (and availabe "
-	echo "on their website: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236"
-	echo 
+	echo "on their website: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236 )"
+	echo
 	echo "Options:"
 	echo "  -r, --recreate           If the benchmark database exists, recreate it, dropping all"
 	echo "                           existing data. (If neither recreate nor append are set, the "
@@ -57,7 +57,7 @@ function usage {
 	echo "  -p, --port NUMBER        IP port on which to connect to the database"
 	echo "  -k, --keep-downloads     Keep the zipped CSV files downloaded from the US department"
 	echo "                           of transport's website after loading them into the DB"
-	echo "  -s, --fix-sort-order    The order of appearance of records in the CSV files is not-uniform;"
+	echo "  -s, --fix-sort-order     The order of appearance of records in the CSV files is not-uniform;"
 	echo "                           With this option (on by default) the CSVs will be resorted,"
 	echo "                           all by the same fixed order."
 	echo "  -i, --ignore-sort-order  The order of appearance of records in the CSV files is not-uniform;"
@@ -73,12 +73,12 @@ function usage {
 	echo "  --first-month MONTH      First month in first year for which to download data"
 	echo "  --last-year YEAR         Last year for which to download data"
 	echo "  --last-month MONTH       Last month in last year for which to download data"
-	echo 
+	echo
 	echo "For questions and details, contact $AUTHOR <$CONTACT_EMAIL> (or just read the source)."
 }
 
 function die {
-	echo $1 >&2   # error message to stderr 
+	echo $1 >&2   # error message to stderr
 	exit ${2:-1}  # default exit code is -1 but you can specify something else
 }
 
@@ -131,11 +131,11 @@ function run_mclient {
 	local query="$1"
 	local format="${2:-csv}"
 	[[ $be_verbose ]] && echo "mclient -lsql -f $format -d $db_name -p $port -s \"$query\""
-	mclient -lsql -f $format -d $db_name -p $port -s "$query" 
+	mclient -lsql -f $format -d $db_name -p $port -s "$query"
 }
 
 function is_number {
-	[[ "$1" =~ '^[0-9]+$' ]] && return 1 || return 0
+   echo "$1" | egrep -q '^\-?[0-9]+$' && return 0 || return 1
 }
 
 function get_and_load_month_data {
@@ -316,13 +316,13 @@ if db_farm_exists $db_farm; then
 	port=$(property_of_dbfarm "port" $db_farm)
 	db_farm_is_up $db_farm || monetdbd start $db_farm || die "Could not start the DB farm at $db_farm"
 else
-	[[ "$be_verbose" ]] && echo "monetdbd create $db_farm" 
+	[[ "$be_verbose" ]] && echo "monetdbd create $db_farm"
 	monetdbd create $db_farm || die "A MonetDB database farm does not exist at ${db_farm}, and cannot be created there."
 	[[ -z $port ]] || port=50002
 	[[ "$be_verbose" ]] && echo "monetdbd set port=$port $db_farm"
 	monetdbd set port=$port $db_farm || die "Can't set the daemon port for new DB farm ${db_farm} to ${port}."
 	[[ "$be_verbose" ]] && echo "monetdbd start $db_farm"
-	monetdbd start $db_farm || die 
+	monetdbd start $db_farm || die
 fi
 
 db_farm_is_up $db_farm || die "Could not get DB farm at $db_farm to the started state"
@@ -332,10 +332,10 @@ db_farm_is_up $db_farm || die "Could not get DB farm at $db_farm to the started 
 if db_exists "$db_name" "$port"; then
 	if db_is_up "$db_name"; then
 		[[ "$be_verbose" ]] &&  echo "monetdb -p $port stop $db_name"
-		monetdb -p $port stop $db_name  >/dev/null || die "Can't stop the existing DB named $db_name in DB farm $db_farm." 
+		monetdb -p $port stop $db_name  >/dev/null || die "Can't stop the existing DB named $db_name in DB farm $db_farm."
 	fi
-	if [[ "$recreate_db" ]]; then 
-		[[ "$be_verbose" ]] &&  echo "monetdb -p $port destroy -f $db_name" 
+	if [[ "$recreate_db" ]]; then
+		[[ "$be_verbose" ]] &&  echo "monetdb -p $port destroy -f $db_name"
 		monetdb -p $port destroy -f $db_name >/dev/null || die "Failed destroying the existing DB named $db_name in DB farm $db_farm."
 		need_to_create_the_db=1
 	elif [[ ! "$append_to_db" ]]; then
@@ -345,12 +345,12 @@ else
 	need_to_create_the_db=1
 fi
 
-# Create the DB and SQL-create its schema 
+# Create the DB and SQL-create its schema
 
 if [[ "$need_to_create_the_db" ]]; then
-	( 
-	( [[ "$be_verbose" ]] && echo "monetdb -p $port create $db_name" ; monetdb -p $port create $db_name > /dev/null ) &&  
-	( [[ "$be_verbose" ]] && echo "monetdb -p $port release $db_name" ;  monetdb -p $port release $db_name > /dev/null ) 
+	(
+	( [[ "$be_verbose" ]] && echo "monetdb -p $port create $db_name" ; monetdb -p $port create $db_name > /dev/null ) &&
+	( [[ "$be_verbose" ]] && echo "monetdb -p $port release $db_name" ;  monetdb -p $port release $db_name > /dev/null )
 	) || die "Failed to create (and release) a database named $db_name in DB farm $db_farm for US Deptartment of Transport on-time performance data."
 	[[ $empty_as_null ]] || schema_creation_sql=$(echo $schema_creation_sql | sed -r 's/INT DEFAULT NULL/INT NOT NULL DEFAULT 0/g; s/VARCHAR\(([0-9]+)\) DEFAULT NULL/VARCHAR(\1) NOT NULL DEFAULT '\'\''/g;')
 	run_mclient "$schema_creation_sql"
