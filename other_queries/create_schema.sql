@@ -24,7 +24,7 @@ CREATE TABLE ontime (
 	                                                 -- but in fact we sometimes get some junk, 
 	                                                 -- including non-ASCII; and there are quite a few
 	                                                 -- values here that are shorter than 6 chars
-	FlightNum            VARCHAR(4)    NOT NULL,
+	FlightNum            SMALLINT      NOT NULL,
 	OriginAirportID      INT           NOT NULL,
 	OriginAirportSeqID   INT           NOT NULL,
 	OriginCityMarketID   INT           NOT NULL,
