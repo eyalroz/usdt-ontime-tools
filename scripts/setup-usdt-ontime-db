@@ -178,8 +178,6 @@ function get_and_load_month_data {
 	if has_more_than_one_line "$csv_file"; then
 		[[ "$empty_as_null" ]] && null_as_clause=" NULL AS ''"
 		run_mclient "COPY INTO $table_name FROM '$download_dir/$csv_file' USING DELIMITERS ',','\n','\"' ${null_as_clause};"
-		[[ $keep_csv_files ]] || rm "$csv_file" 2>&1
-		[[ $keep_downloads ]] || rm "$zip_file" 2>&1
 	else
 		if [[ "$be_verbose" ]]; then
 			echo -n "CSV file for year ${year} month ${month}"
@@ -191,6 +189,8 @@ function get_and_load_month_data {
 			echo " - so not loading it."
 		fi
 	fi
+	[[ $keep_csv_files ]] || rm "$csv_file" 2>&1
+	[[ $keep_downloads ]] || rm "$zip_file" 2>&1
 	popd > /dev/null
 }
 
