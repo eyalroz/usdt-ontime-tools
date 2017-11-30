@@ -1,5 +1,6 @@
 -- Table for the USDT On-Time Performance data
--- downloadable from here: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236&DB_Short_Name=On-Time
+--
+-- The data is downloadable from here: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=23
 -- as monthly CSV files.
 --
 -- The designation of some fields as nullable and others as non-null is based on examining all data
@@ -12,7 +13,10 @@ CREATE TABLE ontime (
 	DayofMonth           TINYINT       NOT NULL,
 	DayOfWeek            TINYINT       NOT NULL,
 	FlightDate           DATE          NOT NULL,
-	UniqueCarrier        CHAR(2)       NOT NULL,
+	UniqueCarrier        VARCHAR(6)    NOT NULL,     -- Usually this is a 2-char carrier code, but
+	                                                    in some cases multiple carriers get the same code,
+	                                                    in which case this field includes a suffix such as
+                                                        " (1)" or " (2)" etc.
 	AirlineID            INT           NOT NULL,     -- In the data for 2000-2008 this only goes as high
 	                                                 -- as 20500 or so, but let's be a little future-proof
 	Carrier              CHAR(2)       NOT NULL,
@@ -29,7 +33,9 @@ CREATE TABLE ontime (
 	OriginState          CHAR(2)       DEFAULT NULL,
 	OriginStateFips      CHAR(2)       DEFAULT NULL,
 	OriginStateName      VARCHAR(48)   DEFAULT NULL,
-	OriginWac            TINYINT       NOT NULL,
+	OriginWac            SMALLINT      NOT NULL,     -- These values are fishy, as they seem to correspond
+	                                                    to the state/terriory the airport is in rather than
+	                                                    being airport-specific. 
 	DestAirportID        INT           NOT NULL,
 	DestAirportSeqID     INT           NOT NULL,
 	DestCityMarketID     INT           NOT NULL,
@@ -38,7 +44,7 @@ CREATE TABLE ontime (
 	DestState            CHAR(2)       DEFAULT NULL,
 	DestStateFips        CHAR(2)       DEFAULT NULL,
 	DestStateName        VARCHAR(48)   DEFAULT NULL,
-	DestWac              TINYINT       NOT NULL,
+	DestWac              SMALLINT      NOT NULL,     -- See comment for OriginWac
 	CRSDepTime           INT           NOT NULL,
 	DepTime              INT           DEFAULT NULL,
 	DepDelay             SMALLINT      DEFAULT NULL,
