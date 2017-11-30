@@ -23,7 +23,8 @@ Currently, only [MonetDB](https://www.monetdb.org/) is supported as the DBMS int
 ### Getting started
 
 1. Set up a MonetDB 'Database Farm' (see the [MonetDB tutorial](https://www.monetdb.org/Documentation/UserGuide/Tutorial) if you're not sure how to do that).
-2. Invoke `scripts/setup-usdt-ontime-db` to create and populate DB with data from 2000 through 2008; the script's command-line options are as follows:
+2. Make sure you have your MonetDB credentials (username and password) in `~/.monetdb` (otherwise you will be prompted for credentials for each of dozens of files when loading the date).
+3. Invoke `scripts/setup-usdt-ontime-db` to create and populate DB with data from 2000 through 2008; the script's command-line options are as follows:
 ```
 Options:
   -r, --recreate           If the benchmark database exists, recreate it, dropping all
@@ -54,7 +55,7 @@ Options:
   --last-month MONTH       Last month in last year for which to download data
 ```
 
-3. Execute `scripts/run_benchmark_queries.sh -v` as a sanity check, to make sure you get results that look like the expected answer (you can also diff-compare the results you get with  `scripts/run_benchmark_queries.sh -w` to the reference results in `expected_results/`).
+4. Execute `scripts/run_benchmark_queries.sh -v` as a sanity check, to make sure you get results that look like the expected answer (you can also diff-compare the results you get with  `scripts/run_benchmark_queries.sh -w` to the reference results in `expected_results/`).
 
 ### Questions? Requests? Feedback? Bugs?
 
