@@ -85,7 +85,7 @@ CREATE TABLE ontime (
 	NASDelay             INT           DEFAULT NULL,
 	SecurityDelay        INT           DEFAULT NULL,
 	LateAircraftDelay    INT           DEFAULT NULL,
-	FirstDepTime         CHAR(4)       DEFAULT NULL,
+	FirstDepTime         SMALLINT      DEFAULT NULL,
 	TotalAddGTime        SMALLINT      DEFAULT NULL, 
 	LongestAddGTime      SMALLINT      DEFAULT NULL,
 	DivAirportLandings   CHAR(1)       DEFAULT NULL,
