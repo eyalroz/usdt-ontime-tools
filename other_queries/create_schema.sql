@@ -52,7 +52,7 @@ CREATE TABLE ontime (
 	DepDel15             BOOLEAN       DEFAULT NULL, -- 0, 1 or null
 	DepartureDelayGroups TINYINT       DEFAULT NULL, -- Should have values from -1 to 12, but we also have
                                                      -- records with -2 for some reason, and nulls
-	DepTimeBlk           CHAR(9)       NOT NULL,     -- the round-hour time block for departure; these all have
+	DepTimeBlk           CHAR(9)       DEFAULT NULL, -- the round-hour time block for departure; these all have
                                                      -- the format "HHMM-HHMM", although in fact these are mostly
                                                      -- round-hour intervals (e.g. 1600-1659) and a single large
                                                      -- block at night, 0000-0559. There are thus effectively
@@ -70,7 +70,7 @@ CREATE TABLE ontime (
 	ArrDel15             BOOLEAN       DEFAULT NULL, -- 0, 1 or null
 	ArrivalDelayGroups   TINYINT       DEFAULT NULL, -- Should have values from -1 to 12, but we also have
                                                      -- records with -2 for some reason, and nulls
-	ArrTimeBlk           CHAR(9)       NOT NULL,     -- see comment for DepTimeBlk - full-hour intervals
+	ArrTimeBlk           CHAR(9)       DEFAULT NULL, -- see comment for DepTimeBlk - full-hour intervals
 	Cancelled            BOOLEAN       NOT NULL,     -- 0 or 1 or null
 	CancellationCode     CHAR(1)       DEFAULT NULL, -- 'A','B','C' or 'D'
 	Diverted             BOOLEAN       NOT NULL,
