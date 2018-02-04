@@ -45,8 +45,8 @@ CREATE TABLE ontime (
 	DestStateFips        CHAR(2)       DEFAULT NULL,
 	DestStateName        VARCHAR(48)   DEFAULT NULL,
 	DestWac              SMALLINT      NOT NULL,     -- See comment for OriginWac
-	CRSDepTime           INT           NOT NULL,
-	DepTime              INT           DEFAULT NULL,
+	CRSDepTime           SMALLINT      DEFAULT NULL,
+	DepTime              SMALLINT      DEFAULT NULL,
 	DepDelay             SMALLINT      DEFAULT NULL,
 	DepDelayMinutes      SMALLINT      DEFAULT NULL,
 	DepDel15             BOOLEAN       DEFAULT NULL, -- 0, 1 or null
