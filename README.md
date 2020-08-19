@@ -1,6 +1,6 @@
 # 'usdt-ontime' benchmark tools
 
-This project facilitates the use of on-time and delayed flight data, available from the [US Department of Transport](https://www.transportation.gov/)'s [Bureau of Transportation Statistics](http://www.rita.dot.gov/bts/), for DBMS testing and benchmarking.
+This project facilitates the use of on-time and delayed flight data, available from the [US Department of Transport](https://www.transportation.gov/)'s [Bureau of Transportation Statistics](https://www.bts.gov/), for DBMS testing and benchmarking.
 
 Specifically, it comprises:
 
