@@ -12,6 +12,9 @@
 #
 # By Eyal Rozenberg <E.Rozenberg@cwi.nl>
 #
+#
+# Note: It may be useful to enable tee as a shell builtin (e.g. enable -f /usr/lib/bash/tee tee)
+#
 
 
 #---------------------------------------
@@ -64,6 +67,10 @@ function usage {
 	echo "                           all by the same fixed order."
 	echo "  -i, --ignore-sort-order  The order of appearance of records in the CSV files is not-uniform;"
 	echo "                           With this option, ) the CSVs will be loaded as-is"
+	echo "  -D, --remove-duplicates  Do not load records into the database which are identical duplicates"
+	echo "                           (textually) of other records"
+	echo "  --load-duplicates        Load all records into the database, include any duplicates (this is"
+	echo "                           the default)"
 	echo "  -v, --verbose            Be verbose about actions taken and current status"
 	echo "  -h, --help               Print usage information"
 #	echo "  -n, --empty-as-null      Interpret empty fields as having a null value (rather than"
@@ -161,10 +168,14 @@ function get_and_load_month_data {
 	# Actually, the files themselves are typically not in this keying order (e.g. carrier before dayofmonth) - but
 	# they are not in a uniform consistent order, not even within individual files; so I'm keying essentially
 	# by the fields in order (ignoring derivable fields such as FlightDate and DayOfWeek)
-	[[ "$fix_csv_sort_order" ]] && sort_pipe_element="sort --parallel=$num_processors -t, -k4,4n -k7,7 -k11,11n -k12,12n -k21,21n -" || sort_pipe_element="cat"
+	if [[ "$fix_csv_sort_order" ]]; then
+		sort_and_remove_dupes_pipe_element="sort $([[ "$remove_duplicates" ]] && echo --unique) --parallel=$num_processors -t, -k4,4n -k7,7 -k11,11n -k12,12n -k21,21n -"
+		remove_flightnum_quotes_sed_command='s/^(([^,]*,){10})"([0-9]+)"/\1\3/; '
+	else
+		sort_and_remove_dupes_pipe_element="$([[ "$remove_duplicates" ]] && echo "sort --unique --parallel=$num_processors" || echo "tee")"
+	fi
 	# The flight number field is usually/always within quotes. We could skip the first quote, but then - if someday the line numbers
 	# stop having quotes we'll be in a bind
-	[[ "$fix_csv_sort_order" ]] && remove_flightnum_quotes_sed_command='s/^(([^,]*,){10})"([0-9]+)"/\1\3/; '
 	[[ "$be_verbose" ]] || quiet_switch="-q"
 	pushd $download_dir > /dev/null
 	[[ "$be_verbose" ]] && echo "wget -c \"${url_prefix}${zip_file}\""
@@ -173,11 +184,10 @@ function get_and_load_month_data {
 	# Note: We assume the .zip file contains exactly one CSV file; but we do _not_
 	# assume that CSV file has the same base name as the zip filename
 	local csv_file="$(zipinfo -1 $zip_file '*.csv')"
-	[[ "$be_verbose" ]] && echo "unzip -p -o \"$zip_file\" \"$csv_file\" | tail -n +2 | LC_ALL=C sed 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'${char_masking_sed_command}$remove_flightnum_quotes_sed_command}' | $sort_pipe_element > \"$csv_file\""
+	[[ "$be_verbose" ]] && echo "unzip -p -o \"$zip_file\" \"$csv_file\" | tail -n +2 | LC_ALL=C sed 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/;'${char_masking_sed_command}$remove_flightnum_quotes_sed_command}' | ${sort_and_remove_dupes_pipe_element}  > \"$csv_file\""
 	# The \x stuff is to clean character ertries involving invalid octets for UTF-8. The sort command is due to the fact that not all CSV files follow the smae sort key
 	# The tail command is used to drop the header line
-	unzip -p $quiet_switch -o "$zip_file" "$csv_file" | tail -n +2 | LC_ALL=C sed -r 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/; '"${char_masking_sed_command}${remove_flightnum_quotes_sed_command}" | $sort_pipe_element  > "$csv_file"
-
+	unzip -p $quiet_switch -o "$zip_file" "$csv_file" | tail -n +2 | LC_ALL=C sed -r 's/\.00,/,/g; s/\xE4NKNO\xE6/UNKNOW/; '"${char_masking_sed_command}${remove_flightnum_quotes_sed_command}" | ${sort_and_remove_dupes_pipe_element} > "$csv_file"
 	if has_more_than_one_line "$csv_file"; then
 		[[ "$empty_as_null" ]] && null_as_clause=" NULL AS ''"
 		run_mclient "COPY INTO $table_name FROM '$download_dir/$csv_file' USING DELIMITERS ',','\n','\"' ${null_as_clause};"
@@ -267,6 +277,12 @@ while [[ $# > 0 ]]; do
 		;;
 	-i|--ignore-sort-order|--ignore-csv-sort-order)
 		unset fix_csv_sort_order
+		;;
+	-D|--remove-duplicates)
+		remove_duplicates=1
+		;;
+	--load-duplicates)
+		unset remove_duplicates
 		;;
 	*) # unknown option
 		die "Uknown command line option $option_key"
