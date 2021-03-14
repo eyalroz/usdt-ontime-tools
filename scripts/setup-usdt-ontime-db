@@ -1,19 +1,18 @@
 #!/bin/bash
 #
-# setup-tpch-db
+# setup-usdt-ontime-db
 #
 # A script for setting up a MonetDB database containing the schema for
-# the US Department of Transport's on-time flight statistics, for the benchmark
-# described here:
+# the US Department of Transport's on-time flight statistics.
 #
-# https://www.percona.com/blog/2009/10/02/analyzing-air-traffic-performance-with-infobright-and-monetdb/
+# By Eyal Rozenberg <eyalroz1@gmx.com>
 #
-# Must be run after MonetDB itself has been properly installed
+# Full repository and latest version:
+# https://github.com/eyalroz/usdt-ontime-tools/
 #
-# By Eyal Rozenberg <E.Rozenberg@cwi.nl>
-#
-#
-# Note: It may be useful to enable tee as a shell builtin (e.g. enable -f /usr/lib/bash/tee tee)
+# Notes:
+# - Must be run after MonetDB itself has been properly installed.
+# - It may be useful to enable tee as a shell builtin (e.g. enable -f /usr/lib/bash/tee tee)
 #
 
 
@@ -40,8 +39,6 @@ mask_unexpected_chars=1 # Some string fields have non-ASCII characters, obviousl
 # Helper functions
 
 function usage {
-	AUTHOR="Eyal Rozenberg"
-	CONTACT_EMAIL="E.Rozenberg@cwi.nl"
 	echo "Usage: $0 [OPTIONS]..."
 	echo "Create and load up a MonetDB database of the US Department of Transport's On-Time "
 	echo "perfromance data collected by the Beureau of Transport Statistics (and availabe "
@@ -82,8 +79,6 @@ function usage {
 	echo "  --first-month MONTH      First month in first year for which to download data"
 	echo "  --last-year YEAR         Last year for which to download data"
 	echo "  --last-month MONTH       Last month in last year for which to download data"
-	echo
-	echo "For questions and details, contact $AUTHOR <$CONTACT_EMAIL> (or just read the source)."
 }
 
 function die {
