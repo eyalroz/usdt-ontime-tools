@@ -178,9 +178,9 @@ function get_and_load_month_data {
 	# stop having quotes we'll be in a bind
 	[[ "$be_verbose" ]] || quiet_switch="-q"
 	pushd $download_dir > /dev/null
-	[[ "$be_verbose" ]] && echo "wget -c \"${url_prefix}${zip_file}\""
+	[[ "$be_verbose" ]] && echo "wget --no-check-certificate -c \"${url_prefix}${zip_file}\""
 	local url="${url_prefix}${zip_file}"
-	wget -c $quiet_switch "$url"
+	wget --no-check-certificate -c $quiet_switch "$url"
 	# Note: We assume the .zip file contains exactly one CSV file; but we do _not_
 	# assume that CSV file has the same base name as the zip filename
 	local csv_file="$(zipinfo -1 $zip_file '*.csv')"
