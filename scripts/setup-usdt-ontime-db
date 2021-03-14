@@ -67,7 +67,7 @@ function usage {
 	echo "                           all by the same fixed order."
 	echo "  -i, --ignore-sort-order  The order of appearance of records in the CSV files is not-uniform;"
 	echo "                           With this option, ) the CSVs will be loaded as-is"
-	echo "  -D, --remove-duplicates  Do not load records into the database which are identical duplicates"
+	echo "  -R, --remove-duplicates  Do not load records into the database which are identical duplicates"
 	echo "                           (textually) of other records"
 	echo "  --load-duplicates        Load all records into the database, include any duplicates (this is"
 	echo "                           the default)"
@@ -278,7 +278,7 @@ while [[ $# > 0 ]]; do
 	-i|--ignore-sort-order|--ignore-csv-sort-order)
 		unset fix_csv_sort_order
 		;;
-	-D|--remove-duplicates)
+	-R|--remove-duplicates|--remove-dupes)
 		remove_duplicates=1
 		;;
 	--load-duplicates)
